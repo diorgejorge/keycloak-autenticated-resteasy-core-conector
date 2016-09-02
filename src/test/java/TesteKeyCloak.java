@@ -2,6 +2,7 @@ import com.core.keycloak.util.KeyCloakUtil;
 import org.apache.http.client.ClientProtocolException;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -18,39 +19,48 @@ public class TesteKeyCloak {
     static final int DENIED = 401;
 
     @Test
-    public void testOk() {
+    /**
+     * Tests the service
+     */
+    public void testOk() throws  Exception{
 
-        try {
 
             ClientRequest request = new ClientRequest(
-                    "http://localhost:8180/cobranca-service/service/teste");
-            request.header("Authorization", KeyCloakUtil.getToken(KeyCloakUtil.propertiesLoader().getProperty("urlServidor"),"basic-auth"));
+                    KeyCloakUtil.propertiesLoader().getProject_service_url());
+            request.header("Authorization", KeyCloakUtil.getToken("user","password"));
             ClientResponse<String> response = request.get(String.class);
             assert response.getStatus() == 200;
-            }  catch (Exception e) {
 
-            e.printStackTrace();
 
-        }
 
     }
     @Test
-    public void testDenied() {
-
-        try {
+    public void testDenied() throws Exception {
 
             ClientRequest request = new ClientRequest(
-                    "http://localhost:8180/cobranca-service/service/teste");
-            request.header("Authorization", KeyCloakUtil.getToken(KeyCloakUtil.propertiesLoader().getProperty("urlServidor"),"basic-auth")+"0");
+                    KeyCloakUtil.propertiesLoader().getProject_service_url());
+            request.header("Authorization", KeyCloakUtil.getToken("user","password")+"0");
             ClientResponse<String> response = request.get(String.class);
             assert response.getStatus() == 401;
 
 
-        }  catch (Exception e) {
+    }
 
-            e.printStackTrace();
-
-        }
+    @Test
+    public void testOkApi() throws Exception {
+            ClientRequest request = new ClientRequest(
+                    KeyCloakUtil.propertiesLoader().getProject_service_url());
+            request.header("Authorization", KeyCloakUtil.getTokenByApi("user","password"));
+            ClientResponse<String> response = request.get(String.class);
+            assert response.getStatus() == 200;
+    }
+    @Test
+    public void testDeniedApi() throws Exception {
+            ClientRequest request = new ClientRequest(
+                    KeyCloakUtil.propertiesLoader().getProject_service_url());
+            request.header("Authorization", KeyCloakUtil.getTokenByApi("user","password")+"0");
+            ClientResponse<String> response = request.get(String.class);
+            assert response.getStatus() == 401;
 
     }
 
